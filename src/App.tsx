@@ -12,7 +12,8 @@ import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import CssBaseline from '@mui/material/CssBaseline';
 import Drawer from '@mui/material/Drawer';
-import IconButton from '@mui/material/IconButton'
+import IconButton from '@mui/material/IconButton';
+import MenuIcon from '@mui/icons-material/Menu';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 
@@ -27,13 +28,14 @@ const darkTheme = createTheme({
     mode: 'dark',
   },
 });
+
 export const App: React.FC = () => {
   const storageValue = localStorage.getItem("notes");
 
   const [notes, setNotes] = useState<Notes[]>((typeof storageValue === 'string' && JSON.parse(storageValue)) || []);
   const [activeNote, setActiveNote] = useState<string | boolean>(false);
 
-  // MUI state
+  // state for MUI
   const [mobileOpen, setMobileOpen] = useState<boolean>(false);
   const [isClosing, setIsClosing] = useState(false);
   const drawerWidth = 240;
@@ -47,7 +49,7 @@ export const App: React.FC = () => {
     if(notes.length > 0) setActiveNote(notes[0].id);
   }, []);
 
-  // MUI function
+  // function for MUI
   const handleDrawerClose = () => {
     setIsClosing(true);
     setMobileOpen(false);
@@ -56,9 +58,7 @@ export const App: React.FC = () => {
     setIsClosing(false);
   };
   const handleDrawerToggle = () => {
-    if (!isClosing) {
-      setMobileOpen(!mobileOpen);
-    }
+    setMobileOpen(prev => !prev);
   };
 
   const onAddNote = () => {
@@ -82,13 +82,7 @@ export const App: React.FC = () => {
   };
   const onUpdatenote = (updateNote: Notes) => {
     // 修正された新しいノートの配列を返す
-    const updatedNotesArray = notes.map((note) => {
-      if(note.id === updateNote.id) {
-        return updateNote;
-      } else {
-        return note;
-      }
-    });
+    const updatedNotesArray = notes.map((note) => (note.id === updateNote.id) ? updateNote: note);
     setNotes(updatedNotesArray);
   }
 
@@ -112,7 +106,7 @@ export const App: React.FC = () => {
               onClick={handleDrawerToggle}
               sx={{ mr: 2, display: { sm: 'none' } }}
             >
-              MENU
+              <MenuIcon/>
             </IconButton>
             <Typography variant="h6" noWrap component="div">
               THE NOTE APP
