@@ -8,11 +8,11 @@ import Button from '@mui/material/Button';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import DeleteIcon from '@mui/icons-material/Delete';
 import List from '@mui/material/List';
+import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-import MenuItemIcon from '@mui/material/MenuItem';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Typography from '@mui/material/Typography';
 
@@ -20,25 +20,31 @@ interface SidebarProps {
   notes: Notes[];
   onAddNote: () => void,
   onDeleteNote: (id: string) => void,
+  onCopyNote: (note: Notes) => void;
   activeNote: string | boolean,
   setActiveNote: React.Dispatch<React.SetStateAction<string | boolean>>,
   handleDrawerClose: () => void,
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ notes, onAddNote, onDeleteNote, setActiveNote, handleDrawerClose }) => {
+const Sidebar: React.FC<SidebarProps> =({ notes, onAddNote, onDeleteNote, onCopyNote, activeNote, setActiveNote, handleDrawerClose }) => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  const [deleteId, setDeleteId] = React.useState<null | string>(null);
+  const [selectedId, setSelectedId] = React.useState<null | string>(null);
+  const [selectedNote, setSelectedNote] = React.useState<any>();
   const open = Boolean(anchorEl);
+
+  const onDeleteNotetrigger = () => {
+    typeof selectedId === 'string' && onDeleteNote(selectedId);
+    setAnchorEl(null);
+  }
+  const onCopyNotetrigger = () => {
+    onCopyNote(selectedNote);
+    setAnchorEl(null);
+  }
 
   const onOpenMenu = (event: React.MouseEvent<HTMLElement>) => {
     event.stopPropagation();
     setAnchorEl(event.currentTarget);
   };
-  const onDeleteNotetrigger = () => {
-    typeof deleteId ==='string' && onDeleteNote(deleteId);
-    setAnchorEl(null);
-    handleDrawerClose();
-  }
   const onClose = (event: React.MouseEvent<HTMLElement>) => {
     event.stopPropagation();
     setAnchorEl(null);
@@ -60,6 +66,7 @@ const Sidebar: React.FC<SidebarProps> = ({ notes, onAddNote, onDeleteNote, setAc
             <ListItem
               key={note.id}
               alignItems="flex-start"
+              selected={note.id === activeNote}
               onClick={() => {
                 setActiveNote(note.id);
                 handleDrawerClose();
@@ -88,7 +95,8 @@ const Sidebar: React.FC<SidebarProps> = ({ notes, onAddNote, onDeleteNote, setAc
               <Button
                 onClick={(event: React.MouseEvent<HTMLElement>) => {
                   onOpenMenu(event);
-                  setDeleteId(note.id)
+                  setSelectedId(note.id);
+                  setSelectedNote(note);
                 }}
                 aria-controls={open ? `long-menu-${note.id}`: undefined}
                 aria-expanded={open ? 'true' : undefined}
@@ -97,29 +105,29 @@ const Sidebar: React.FC<SidebarProps> = ({ notes, onAddNote, onDeleteNote, setAc
                 <MoreVertIcon/>
               </Button>
               <Menu
-                id={`long-menu-${note.id}`}
+                id={`long-menu-${selectedId}`}
                 open={open}
                 onClose={onClose}
                 anchorEl={anchorEl}
-                MenuListProps={{
-                  'aria-labelledby': `long-button-${note.id}`,
-                }}
-                PaperProps={{
-                  style: {
-                    // maxHeight: ITEM_HEIGHT * 4.5,
-                    width: '18ch',
-                  }
-                }}
+                MenuListProps={{ 'aria-labelledby': `long-button-${selectedId}`, }}
+                sx= {{width: '24ch'}}
               >
                 <MenuItem
+                  onClick={onCopyNotetrigger}
+                >
+                  <ListItemIcon><ContentCopyIcon/></ListItemIcon>
+                  Duplicate
+                </MenuItem>
+                <MenuItem
+                  sx={{ color: 'red' }}
                   onClick={onDeleteNotetrigger}
                 >
-                  <MenuItemIcon><DeleteIcon/></MenuItemIcon>
+                  <ListItemIcon
+                    style={{ color: 'red' }}
+                  >
+                    <DeleteIcon/>
+                  </ListItemIcon>
                   Delete
-                </MenuItem>
-                <MenuItem>
-                  <MenuItemIcon><ContentCopyIcon/></MenuItemIcon>
-                  Duplicate
                 </MenuItem>
               </Menu>
             </ListItem>

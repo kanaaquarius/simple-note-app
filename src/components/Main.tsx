@@ -33,12 +33,15 @@ const Main: React.FC<MainProps> = ({getActiveNote, onUpdatenote}) => {
   }
   return (
       <>
-        <TextField id='title'
+        <TextField
+          id='title'
           variant="standard" fullWidth
           value={getActiveNote.title}
           onChange={(e) => onEditNote('title', e.target.value)}
         />
-        <TextField placeholder='type something' id="text"
+        <TextField
+          id="text"
+          placeholder='type something'
           multiline fullWidth maxRows={15} margin="normal"
           sx={{"& fieldset": { border: 'none' }}}
           value={getActiveNote.text}

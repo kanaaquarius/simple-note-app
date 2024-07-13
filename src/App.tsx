@@ -29,7 +29,7 @@ const darkTheme = createTheme({
   },
 });
 
-export const App: React.FC = () => {
+export const App = () => {
   const storageValue = localStorage.getItem("notes");
 
   const [notes, setNotes] = useState<Notes[]>((typeof storageValue === 'string' && JSON.parse(storageValue)) || []);
@@ -42,7 +42,6 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     localStorage.setItem("notes", JSON.stringify(notes));
-    console.log(notes);
   }, [notes]);
 
   useEffect(() => {
@@ -77,12 +76,22 @@ export const App: React.FC = () => {
       });
     setNotes(deleteNote);
   }
+  const onCopyNote = (note: Notes) => {
+    const copiedNote = {
+      id: uuidv4(),
+      title: note.title,
+      text: note.text,
+      modDate: Date.now(),
+    };
+    setNotes([...notes, copiedNote])
+  }
+
   const getActiveNote = () => {
     return notes.find((note) => note.id === activeNote);
   };
   const onUpdatenote = (updateNote: Notes) => {
-    // 修正された新しいノートの配列を返す
-    const updatedNotesArray = notes.map((note) => (note.id === updateNote.id) ? updateNote: note);
+    const updatedNotesArray =
+      notes.map((note) => (note.id === updateNote.id) ? updateNote: note);
     setNotes(updatedNotesArray);
   }
 
@@ -108,7 +117,9 @@ export const App: React.FC = () => {
             >
               <MenuIcon/>
             </IconButton>
-            <Typography variant="h6" noWrap component="div">
+            <Typography
+              variant="h6" noWrap component="div"
+            >
               THE NOTE APP
             </Typography>
           </Toolbar>
@@ -134,6 +145,7 @@ export const App: React.FC = () => {
               notes={notes}
               onAddNote={onAddNote}
               onDeleteNote={onDeleteNote}
+              onCopyNote={onCopyNote}
               activeNote={activeNote}
               setActiveNote={setActiveNote}
               handleDrawerClose={handleDrawerClose}
@@ -151,6 +163,7 @@ export const App: React.FC = () => {
               notes={notes}
               onAddNote={onAddNote}
               onDeleteNote={onDeleteNote}
+              onCopyNote={onCopyNote}
               activeNote={activeNote}
               setActiveNote={setActiveNote}
               handleDrawerClose={handleDrawerClose}
@@ -159,7 +172,10 @@ export const App: React.FC = () => {
         </Box>
         <Box
           component="main"
-          sx={{ flexGrow: 1, p: 3, width: { sm: `calc(100% - ${drawerWidth}px)` } }}
+          sx={{
+            flexGrow: 1, p: 3,
+            width: { sm: `calc(100% - ${drawerWidth}px)` }
+          }}
         >
           <Toolbar />
           <Main
